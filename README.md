@@ -285,68 +285,52 @@ Use the Registration page to create a new account, or use existing test credenti
 Automotive-Predictive-Maintenance-System/
 │
 ├── backend/                          # FastAPI Backend
-│   ├── app/
-│   │   ├── core/
-│   │   │   ├── auth.py               # JWT authentication logic
-│   │   │   ├── config.py             # Application configuration
-│   │   │   └── database.py           # Async SQLAlchemy engine
-│   │   ├── models/
-│   │   │   ├── user.py               # User model
-│   │   │   ├── vehicle.py            # Vehicle model
-│   │   │   ├── sensor.py             # Sensor reading model
-│   │   │   ├── prediction.py         # ML prediction model
-│   │   │   └── alert.py              # Alert model
-│   │   ├── routers/
-│   │   │   ├── auth.py               # Auth endpoints
-│   │   │   ├── dashboard.py          # Dashboard & summary APIs
-│   │   │   ├── vehicles.py           # Vehicle CRUD
-│   │   │   ├── alerts.py             # Alert management
-│   │   │   ├── reports.py            # Report generation
-│   │   │   ├── predictions.py        # Prediction APIs
-│   │   │   └── viz.py                # Visualization data
-│   │   ├── schemas/                   # Pydantic schemas
-│   │   ├── services/
-│   │   │   ├── ml_service.py         # ML prediction service
-│   │   │   ├── sensor_service.py     # Sensor data processing
-│   │   │   ├── vehicle_service.py    # Vehicle business logic
-│   │   │   └── report_generator.py   # PDF report engine
-│   │   └── main.py                   # FastAPI app entrypoint
-│   ├── alembic/                       # Database migrations
-│   ├── requirements.txt
-│   └── .env
+│   ├── agents/                       # Master, Prediction, Action agents
+│   ├── api/                          # Routers and endpoints
+│   ├── core/                         # Database, auth, and central logic
+│   ├── models/                       # SQLAlchemy/DB models
+│   ├── schemas/                      # Pydantic schemas
+│   ├── services/                     # Business logic
+│   ├── templates/                    # Email/Notification templates
+│   └── main.py                       # FastAPI app entrypoint
 │
-├── frontend-vite/                    # React Frontend
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── layout/               # Sidebar, Header, Layout
-│   │   │   ├── charts/               # Recharts components
-│   │   │   ├── common/               # Reusable UI components
-│   │   │   └── dashboard/            # Dashboard-specific widgets
-│   │   ├── pages/
-│   │   │   ├── DashboardPage.jsx     # Main dashboard
-│   │   │   ├── VehiclesPage.jsx      # Vehicle fleet list
-│   │   │   ├── VehicleDetailPage.jsx # Individual vehicle view
-│   │   │   ├── AlertsPage.jsx        # Alert management
-│   │   │   ├── PredictionsPage.jsx   # ML predictions view
-│   │   │   ├── ReportsSettingsPages.jsx # Report generation
-│   │   │   ├── ProfilePage.jsx       # User profile
-│   │   │   └── LoginPage.jsx         # Authentication
-│   │   ├── services/
-│   │   │   ├── api.js                # API client & data fetching
-│   │   │   ├── authApi.js            # Auth API & Axios config
-│   │   │   └── mockData.js           # Fallback mock data
-│   │   ├── context/
-│   │   │   └── AuthContext.jsx       # Auth state management
-│   │   ├── App.jsx                   # Root component & routing
-│   │   ├── index.css                 # Global styles & design system
-│   │   └── main.jsx                  # React entry point
-│   ├── package.json
-│   └── vite.config.js
+├── frontend/                         # React Frontend (Vite)
 │
-├── .gitignore
-├── README.md
-└── requirements.txt
+├── ml/                               # Machine Learning
+│   ├── training/                     # Training scripts (v3, v4)
+│   ├── inference/                    # Prediction logic
+│   ├── models/                       # Saved models (.pkl)
+│   └── notebooks/                    # Jupyter notebooks
+│
+├── data/                             # Data files
+│   ├── raw/                          # Original CSV files
+│   └── processed/                    # Cleaned/Augmented data
+│
+├── database/                         # Database files
+│   └── maintenance.db
+│
+├── scripts/                          # Utility scripts
+│   ├── seed_data.py
+│   ├── test_email.py
+│   └── trigger_alert.py
+│
+├── config/                           # Configuration
+├── tests/                            # Unit & integration tests
+├── docs/                             # Documentation
+├── .env                              # Environment variables
+├── requirements.txt                  # Python dependencies
+└── README.md                         # Project documentation
 ```
+
+### 🧹 Reorganizing Existing Projects
+
+If you are upgrading from an older version of this system with scattered files, run the provided reorganization script:
+
+```bash
+python3 reorganize.py
+```
+
+This script will automatically move files into the new structure and update Python imports accordingly.
 
 ---
 
