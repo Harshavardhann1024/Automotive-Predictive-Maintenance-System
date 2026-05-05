@@ -26,6 +26,7 @@ from app.schemas.prediction import (
     ModelInfoResponse,
 )
 from app.services.ml_service import predict_failure, get_model_info
+from app.services.service_scheduler import generate_service_schedule
 
 router = APIRouter()
 
@@ -48,6 +49,9 @@ async def create_prediction(
 
     Pass ?explain=true to include SHAP-based feature explanations
     (adds ~5-20ms to response time on first call, <5ms thereafter).
+
+    After storing the prediction, the service scheduler is triggered
+    asynchronously to generate service tasks for MEDIUM/HIGH risk results.
     """
     try:
         features = {
@@ -77,6 +81,25 @@ async def create_prediction(
         )
         db.add(db_prediction)
         await db.commit()
+        await db.refresh(db_prediction)
+
+        # ─── Trigger Service Scheduler (non-blocking) ───
+        try:
+            schedule_result = await generate_service_schedule(
+                db=db,
+                vehicle_id=data.vehicle_id,
+                prediction_id=db_prediction.id,
+                risk_level=result["risk_level"],
+                failure_probability=result["failure_probability"],
+            )
+            if schedule_result:
+                await db.commit()
+        except Exception as sched_err:
+            # Scheduler failure should NOT block the prediction response
+            import logging
+            logging.getLogger("routers.predictions").warning(
+                f"Service scheduler error (non-blocking): {sched_err}"
+            )
 
         return PredictionResponse(**result)
 

@@ -215,3 +215,71 @@ export async function getModelInfo() {
     return null;
   }
 }
+
+// ─── Service Schedules API ────────────────────────────────
+
+export async function fetchServiceSchedules(params = {}) {
+  try {
+    const res = await apiClient.get(`/service-schedules/`, { params });
+    return res.data;
+  } catch (error) {
+    console.warn("Service schedules fallback", error?.message);
+    return [];
+  }
+}
+
+export async function fetchServiceScheduleStats() {
+  try {
+    const res = await apiClient.get(`/service-schedules/stats`);
+    return res.data;
+  } catch (error) {
+    console.warn("Schedule stats fallback", error?.message);
+    return {
+      total_schedules: 0,
+      pending_count: 0,
+      scheduled_count: 0,
+      in_progress_count: 0,
+      completed_count: 0,
+      cancelled_count: 0,
+      high_priority_count: 0,
+      medium_priority_count: 0,
+      low_priority_count: 0,
+      upcoming_24h: 0,
+      overdue_count: 0,
+      urgent_services: 0,
+      inspection_services: 0,
+      repair_services: 0,
+    };
+  }
+}
+
+export async function fetchSchedulesByVehicle(vehicleId, params = {}) {
+  try {
+    const res = await apiClient.get(`/service-schedules/vehicle/${vehicleId}`, { params });
+    return res.data;
+  } catch (error) {
+    console.warn("Vehicle schedules fallback", error?.message);
+    return [];
+  }
+}
+
+export async function updateServiceSchedule(scheduleId, updateData) {
+  try {
+    const res = await apiClient.patch(`/service-schedules/${scheduleId}`, updateData);
+    return res.data;
+  } catch (error) {
+    console.warn("Update schedule error", error?.message);
+    throw error;
+  }
+}
+
+export async function cancelServiceSchedule(scheduleId) {
+  try {
+    const res = await apiClient.delete(`/service-schedules/${scheduleId}`);
+    return res.data;
+  } catch (error) {
+    console.warn("Cancel schedule error", error?.message);
+    throw error;
+  }
+}
+

@@ -5,6 +5,7 @@ import {
   Car, 
   AlertTriangle, 
   BrainCircuit, 
+  CalendarClock,
   FileText, 
   Activity
 } from 'lucide-react';
@@ -15,6 +16,7 @@ const Sidebar = () => {
     { name: 'Vehicles', path: '/vehicles', icon: <Car className="nav-icon" /> },
     { name: 'Alerts', path: '/alerts', icon: <AlertTriangle className="nav-icon" /> },
     { name: 'Predictions', path: '/predictions', icon: <BrainCircuit className="nav-icon" /> },
+    { name: 'Service Scheduling', path: '/service-scheduling', icon: <CalendarClock className="nav-icon" /> },
     { name: 'Reports', path: '/reports', icon: <FileText className="nav-icon" /> }
   ];
 

@@ -10,6 +10,7 @@ import VehiclesPage from './pages/VehiclesPage';
 import VehicleDetailPage from './pages/VehicleDetailPage';
 import AlertsPage from './pages/AlertsPage';
 import PredictionsPage from './pages/PredictionsPage';
+import ServiceSchedulingPage from './pages/ServiceSchedulingPage';
 import { ReportsPage } from './pages/ReportsSettingsPages';
 import ProfilePage from './pages/ProfilePage';
 
@@ -34,6 +35,7 @@ function App() {
             <Route path="vehicles/:id" element={<VehicleDetailPage />} />
             <Route path="alerts" element={<AlertsPage />} />
             <Route path="predictions" element={<PredictionsPage />} />
+            <Route path="service-scheduling" element={<ServiceSchedulingPage />} />
             <Route path="reports" element={<ReportsPage />} />
             <Route path="profile" element={<ProfilePage />} />
           </Route>
