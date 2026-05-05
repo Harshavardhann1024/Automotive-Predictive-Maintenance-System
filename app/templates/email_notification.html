@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Action Required: Predictive Maintenance Alert</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            color: #333333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .header {
+            background-color: #1e293b;
+            color: #ffffff;
+            padding: 24px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 32px 24px;
+        }
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 24px;
+        }
+        .alert-box {
+            background-color: #fff1f2;
+            border-left: 4px solid #e11d48;
+            padding: 16px;
+            margin-bottom: 24px;
+            border-radius: 4px;
+        }
+        .alert-box.medium {
+            background-color: #fffbeb;
+            border-left-color: #f59e0b;
+        }
+        .alert-box h2 {
+            margin: 0 0 8px 0;
+            color: #e11d48;
+            font-size: 18px;
+        }
+        .alert-box.medium h2 {
+            color: #d97706;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background-color: #f8fafc;
+            padding: 16px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+        .recommendation {
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .btn {
+            display: inline-block;
+            text-align: center;
+            padding: 14px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .btn-primary {
+            background-color: #2563eb;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+        .btn-danger {
+            color: #e11d48;
+            background-color: transparent;
+            font-size: 14px;
+        }
+        .btn-danger:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            background-color: #f8fafc;
+            padding: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Automotive Predictive Maintenance</h1>
+        </div>
+        <div class="content">
+            <div class="greeting">Hello {{USER_NAME}},</div>
+            
+            <p>Our AI-driven diagnostic system has detected a potential issue with your <strong>{{VEHICLE_MODEL}}</strong>. We recommend taking action to prevent an unexpected breakdown.</p>
+            
+            <div class="alert-box {{RISK_LEVEL_LOWER}}">
+                <h2>{{RISK_LEVEL}} Risk Detected</h2>
+                <p style="margin: 0;">Our model identified abnormal sensor patterns indicating a potential component failure.</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Failure Probability</div>
+                    <div class="stat-value">{{PROBABILITY}}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Est. Remaining Life</div>
+                    <div class="stat-value">{{RUL}} Days</div>
+                </div>
+            </div>
+            
+            <div class="recommendation">
+                <strong>Recommendation:</strong> Based on this analysis, we strongly advise scheduling a maintenance check at your earliest convenience to address the underlying issues before they result in a critical failure.
+            </div>
+            
+            <p>Please authorize an action below:</p>
+            
+            <div class="actions">
+                <a href="{{APPROVE_LINK}}" class="btn btn-primary">Approve Service &amp; Schedule Now</a>
+                <a href="{{REMIND_LINK}}" class="btn btn-secondary">Remind Me Later</a>
+                <a href="{{IGNORE_LINK}}" class="btn btn-danger">Ignore Alert (Not Recommended)</a>
+            </div>
+        </div>
+        <div class="footer">
+            <p>This is an automated notification from your Automotive Predictive Maintenance system.</p>
+            <p>For your security, the action links in this email will expire in 48 hours.</p>
+        </div>
+    </div>
+</body>
+</html>

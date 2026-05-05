@@ -11,6 +11,7 @@ from typing import Dict, Any, Optional
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import BackgroundTasks
 
 from .prediction_agent import PredictionAgent
 from .action_agent.action_agent import ActionAgent
@@ -34,6 +35,7 @@ class MasterAgent:
         features: Dict[str, float],
         vehicle_id: Optional[UUID],
         db: AsyncSession,
+        background_tasks: BackgroundTasks,
     ) -> Dict[str, Any]:
         """
         Execute the full predict-and-act pipeline.
@@ -80,6 +82,7 @@ class MasterAgent:
             prediction_result=prediction_result,
             vehicle_id=vehicle_id,
             db=db,
+            background_tasks=background_tasks,
         )
 
         logger.info(

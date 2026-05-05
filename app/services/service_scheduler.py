@@ -22,8 +22,12 @@ import random
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
+from fastapi import BackgroundTasks
 
 from app.models.service_schedule import ServiceSchedule
+from app.models.vehicle import Vehicle
+from app.models.user import User
+from app.services.notification_service import NotificationService
 
 logger = logging.getLogger("services.scheduler")
 
@@ -140,6 +144,7 @@ async def generate_service_schedule(
     prediction_id: Optional[UUID],
     risk_level: str,
     failure_probability: float,
+    background_tasks: BackgroundTasks = None,
 ) -> Optional[Dict[str, Any]]:
     """
     Main entry point: Generate a service schedule from a prediction.
@@ -212,6 +217,43 @@ async def generate_service_schedule(
         f"scheduled={scheduled_date.isoformat()}"
     )
 
+    if background_tasks:
+        user_email = None
+        user_id = None
+        if vehicle_id:
+            try:
+                vehicle_result = await db.execute(select(Vehicle).where(Vehicle.id == vehicle_id))
+                vehicle_obj = vehicle_result.scalars().first()
+                if vehicle_obj and vehicle_obj.owner_id:
+                    user_id = str(vehicle_obj.owner_id)
+                    user_result = await db.execute(select(User).where(User.id == vehicle_obj.owner_id))
+                    user_obj = user_result.scalars().first()
+                    if user_obj:
+                        user_email = user_obj.email
+            except Exception as e:
+                logger.error(f"Error fetching vehicle owner for schedule email: {e}")
+        
+        message = (
+            f"Service of type '{service_type}' has been scheduled for vehicle {vehicle_id} "
+            f"on {scheduled_date.isoformat()}. Priority: {priority}."
+        )
+        
+        # Priority mapping for NotificationService
+        ns_priority = "service_scheduled"
+        
+        await NotificationService.create_notification(
+            title="Service Scheduled",
+            message=message,
+            priority=ns_priority,
+            background_tasks=background_tasks,
+            user_email=user_email,
+            user_id=user_id,
+            db_session=db,
+            prediction_id=str(prediction_id) if prediction_id else None,
+            vehicle_id=str(vehicle_id) if vehicle_id else None,
+            probability=failure_probability
+        )
+
     return {
         "schedule_id": str(schedule.id),
         "vehicle_id": str(vehicle_id) if vehicle_id else None,
@@ -221,3 +263,59 @@ async def generate_service_schedule(
         "status": "pending",
         "scheduled_date": scheduled_date.isoformat(),
     }
+
+
+async def check_and_notify_overdue_services(
+    db: AsyncSession,
+    background_tasks: BackgroundTasks,
+) -> int:
+    """
+    Finds overdue service schedules and triggers escalation emails.
+    Returns the number of overdue schedules found.
+    """
+    now = datetime.utcnow()
+    
+    # Find overdue schedules that are still pending/scheduled
+    query = select(ServiceSchedule).where(
+        and_(
+            ServiceSchedule.scheduled_date < now,
+            ServiceSchedule.status.in_(["pending", "scheduled"]),
+        )
+    )
+    result = await db.execute(query)
+    overdue_schedules = result.scalars().all()
+    
+    count = 0
+    for schedule in overdue_schedules:
+        user_email = None
+        user_id = None
+        if schedule.vehicle_id:
+            try:
+                vehicle_result = await db.execute(select(Vehicle).where(Vehicle.id == schedule.vehicle_id))
+                vehicle_obj = vehicle_result.scalars().first()
+                if vehicle_obj and vehicle_obj.owner_id:
+                    user_id = str(vehicle_obj.owner_id)
+                    user_result = await db.execute(select(User).where(User.id == vehicle_obj.owner_id))
+                    user_obj = user_result.scalars().first()
+                    if user_obj:
+                        user_email = user_obj.email
+            except Exception as e:
+                logger.error(f"Error fetching vehicle owner for overdue email: {e}")
+                
+        message = (
+            f"Service of type '{schedule.service_type}' for vehicle {schedule.vehicle_id} "
+            f"was scheduled for {schedule.scheduled_date.isoformat()} and is now OVERDUE."
+        )
+        
+        await NotificationService.create_notification(
+            title="Service Overdue Escallation",
+            message=message,
+            priority="service_overdue",
+            background_tasks=background_tasks,
+            user_email=user_email,
+            user_id=user_id,
+            db_session=db
+        )
+        count += 1
+        
+    return count

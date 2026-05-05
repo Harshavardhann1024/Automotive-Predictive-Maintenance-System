@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import engine, Base
-from app.routers import users, vehicles, auth, sensors, visualization, dashboard, alerts, reports, predictions, agent_router, service_schedules
+from app.routers import users, vehicles, auth, sensors, visualization, dashboard, alerts, reports, predictions, agent_router, service_schedules, notifications
 
 app = FastAPI(
     title="Automotive Predictive Maintenance API",
@@ -66,3 +66,4 @@ app.include_router(reports.router, prefix="/reports", tags=["Reports"])
 app.include_router(predictions.router, prefix="/predictions", tags=["Predictions"])
 app.include_router(agent_router.router, prefix="/agents", tags=["Agents"])
 app.include_router(service_schedules.router, prefix="/service-schedules", tags=["Service Schedules"])
+app.include_router(notifications.router, tags=["Notifications"])

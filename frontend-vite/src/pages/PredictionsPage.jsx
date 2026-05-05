@@ -13,6 +13,7 @@ import PredictionExplanationCard from '../components/predictions/PredictionExpla
 
 // ─── Default / simulated sensor values ──────────────────
 const DEFAULT_SENSORS = {
+  vehicle_id: '01db2b8ad28944d0b5b910c2567ba233', // Default to Truck-001 for email testing
   engine_temp: 85,
   oil_pressure: 42,
   rpm: 2800,
@@ -35,9 +36,9 @@ const PIE_COLORS  = ['#059669', '#d97706', '#dc2626'];
 
 // ─── Simulated live data presets ────────────────────────
 const PRESETS = [
-  { label: '🟢 Healthy Vehicle',   values: { engine_temp: 82, oil_pressure: 45, rpm: 2200, vibration: 0.25, battery_voltage: 13.1, mileage: 32000 } },
-  { label: '🟡 Warning Signs',     values: { engine_temp: 98, oil_pressure: 36, rpm: 3800, vibration: 0.55, battery_voltage: 12.0, mileage: 85000 } },
-  { label: '🔴 Critical Failure',  values: { engine_temp: 118, oil_pressure: 28, rpm: 4500, vibration: 0.95, battery_voltage: 11.2, mileage: 145000 } },
+  { label: '🟢 Healthy Vehicle',   values: { vehicle_id: '01db2b8ad28944d0b5b910c2567ba233', engine_temp: 82, oil_pressure: 45, rpm: 2200, vibration: 0.25, battery_voltage: 13.1, mileage: 32000 } },
+  { label: '🟡 Warning Signs',     values: { vehicle_id: '01db2b8ad28944d0b5b910c2567ba233', engine_temp: 98, oil_pressure: 36, rpm: 3800, vibration: 0.55, battery_voltage: 12.0, mileage: 85000 } },
+  { label: '🔴 Critical Failure',  values: { vehicle_id: '01db2b8ad28944d0b5b910c2567ba233', engine_temp: 118, oil_pressure: 28, rpm: 4500, vibration: 0.95, battery_voltage: 11.2, mileage: 145000 } },
 ];
 
 const PredictionsPage = () => {
@@ -106,9 +107,9 @@ const PredictionsPage = () => {
           mileage:         +(10000 + Math.random() * 200000).toFixed(0),
         };
         // Convert string values back to numbers
-        const numericSensors = {};
+        const numericSensors = { vehicle_id: sensors.vehicle_id };
         for (const k of Object.keys(newSensors)) numericSensors[k] = Number(newSensors[k]);
-        setSensors(numericSensors);
+        setSensors({ ...numericSensors });
         try {
           const res = await getPrediction(numericSensors);
           setResult(res);

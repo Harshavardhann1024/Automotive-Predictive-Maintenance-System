@@ -9,7 +9,7 @@ GET  /predictions/model-info → Loaded model metadata
 Supports SHAP explainability via ?explain=true query parameter.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
 from typing import List, Optional
@@ -34,6 +34,7 @@ router = APIRouter()
 @router.post("/predict", response_model=PredictionResponse)
 async def create_prediction(
     data: PredictionRequest,
+    background_tasks: BackgroundTasks,
     explain: bool = Query(
         False,
         description="If true, include SHAP feature explanations in response",
@@ -91,6 +92,7 @@ async def create_prediction(
                 prediction_id=db_prediction.id,
                 risk_level=result["risk_level"],
                 failure_probability=result["failure_probability"],
+                background_tasks=background_tasks,
             )
             if schedule_result:
                 await db.commit()

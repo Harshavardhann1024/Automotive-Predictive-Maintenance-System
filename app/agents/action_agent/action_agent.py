@@ -13,6 +13,7 @@ from typing import Dict, Any, Optional
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import BackgroundTasks
 
 from .decision_engine import DecisionEngine, ActionType
 from .scheduler import Scheduler
@@ -32,6 +33,7 @@ class ActionAgent:
         prediction_result: Dict[str, Any],
         vehicle_id: Optional[UUID],
         db: AsyncSession,
+        background_tasks: BackgroundTasks,
     ) -> Dict[str, Any]:
         """
         Execute actions based on a prediction result.
@@ -97,9 +99,11 @@ class ActionAgent:
         notification_result = {"notification_sent": False}
 
         if decision["should_notify"]:
-            notification_result = Notifier.send(
+            notification_result = await Notifier.send(
                 risk_level=risk_level,
                 probability=probability,
+                background_tasks=background_tasks,
+                db=db,
                 vehicle_id=vehicle_id,
                 sensor_flags=sensor_flags,
                 action_taken=action_type.value,

@@ -6,7 +6,7 @@ GET  /agents/health           → Agent system health check
 """
 
 import logging
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -22,6 +22,7 @@ router = APIRouter()
 @router.post("/predict-and-act", response_model=AgentPredictResponse)
 async def predict_and_act(
     data: AgentPredictRequest,
+    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -66,6 +67,7 @@ async def predict_and_act(
             features=features,
             vehicle_id=data.vehicle_id,
             db=db,
+            background_tasks=background_tasks,
         )
 
         # ─── Also persist the prediction to the existing predictions table ───

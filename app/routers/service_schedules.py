@@ -10,7 +10,7 @@ DELETE /service-schedules/{id}        → Cancel a schedule
 """
 
 import logging
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc, and_
 from typing import List, Optional
@@ -24,6 +24,7 @@ from app.schemas.service_schedule import (
     ServiceScheduleUpdate,
     ServiceScheduleStats,
 )
+from app.services.service_scheduler import check_and_notify_overdue_services
 
 logger = logging.getLogger("routers.service_schedules")
 
@@ -58,6 +59,24 @@ async def get_all_schedules(
     except Exception as e:
         logger.exception("Failed to fetch service schedules")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/trigger-overdue-checks")
+async def trigger_overdue_checks(
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Check for overdue services and trigger escalation notifications (including emails).
+    Intended to be called periodically via cron or external scheduler.
+    """
+    try:
+        count = await check_and_notify_overdue_services(db, background_tasks)
+        return {"message": "Overdue check completed", "notified_count": count}
+    except Exception as e:
+        logger.exception("Failed to check overdue services")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @router.get("/stats", response_model=ServiceScheduleStats)

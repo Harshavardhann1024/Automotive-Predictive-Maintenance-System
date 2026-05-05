@@ -22,18 +22,28 @@ class ServiceRequest(Base):
         nullable=True,
         index=True,
     )
+    prediction_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("predictions.id"),
+        nullable=True,
+        index=True,
+    )
 
     # Risk context
     risk_level = Column(String, nullable=False)  # LOW / MEDIUM / HIGH
 
+    # User Decision tracking
+    user_decision = Column(String, nullable=True)  # APPROVE_SERVICE / REMIND_LATER / IGNORE_ALERT
+    decision_timestamp = Column(DateTime, nullable=True)
+
     # Scheduling
-    scheduled_time = Column(DateTime, nullable=False, index=True)
+    scheduled_time = Column(DateTime, nullable=True, index=True)
     status = Column(
         String,
         nullable=False,
-        default="SCHEDULED",
+        default="PENDING",
         index=True,
-    )  # SCHEDULED / IN_PROGRESS / COMPLETED / CANCELLED
+    )  # PENDING / SCHEDULED / CANCELLED / DEFERRED
 
     # Metadata
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
