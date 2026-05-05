@@ -9,6 +9,7 @@ import {
   ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 import { getPrediction, getPredictionHistory, getPredictionStats, getModelInfo } from '../services/api';
+import PredictionExplanationCard from '../components/predictions/PredictionExplanationCard';
 
 // ─── Default / simulated sensor values ──────────────────
 const DEFAULT_SENSORS = {
@@ -72,7 +73,8 @@ const PredictionsPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await getPrediction(sensors);
+      // Request SHAP explanations along with the prediction
+      const res = await getPrediction(sensors, { explain: true });
       setResult(res);
       // Refresh history
       const historyData = await getPredictionHistory({ limit: 20 });
@@ -310,6 +312,18 @@ const PredictionsPage = () => {
                       </div>
                     )}
                   </div>
+
+                  {/* ─── SHAP Explanation Card (Medium/High risk only) ─── */}
+                  {result.explanations && (result.risk_level === 'High' || result.risk_level === 'Medium') && (
+                    <PredictionExplanationCard
+                      explanations={result.explanations}
+                      naturalExplanation={result.natural_explanation}
+                      riskLevel={result.risk_level}
+                      suppressedByRules={result.suppressed_by_rules}
+                      suppressionNote={result.suppression_note}
+                      shapBaseValue={result.shap_base_value}
+                    />
+                  )}
 
                   {/* Sensor Summary Cards */}
                   <div className="sensor-summary-grid">

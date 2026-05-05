@@ -16,4 +16,8 @@ numpy
 scikit-learn
 joblib
 xgboost
+shap
 aiosqlite
+email-validator
+reportlab
+greenlet

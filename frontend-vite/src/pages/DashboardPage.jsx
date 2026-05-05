@@ -9,7 +9,6 @@ import {
   AreaChart, Area, PieChart, Pie, Cell
 } from 'recharts';
 import { fetchDashboardSummary, fetchAlerts, getChartData, downloadDashboardReport, getPredictionStats, getPrediction } from '../services/api';
-import { apiClient } from '../services/authApi';
 
 const RISK_COLORS = ['#059669', '#d97706', '#dc2626'];
 
@@ -38,8 +37,8 @@ const DashboardPage = () => {
           failRiskTrend: charts?.riskTrend || charts?.failRiskTrend || []
         });
         setPredStats(stats);
-      } catch (e) {
-        console.error("Error loading dashboard", e);
+      } catch {
+        console.warn("Could not load dashboard data from backend");
       } finally {
         setLoading(false);
       }
@@ -97,7 +96,7 @@ const DashboardPage = () => {
           try {
             await downloadDashboardReport();
             alert('Executive Dashboard Report successfully generated and downloaded!');
-          } catch(err) { alert('Error generating report'); }
+          } catch { alert('Error generating report'); }
         }}>
           <TrendingUp size={16} /> Generate Report
         </button>

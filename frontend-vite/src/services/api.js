@@ -168,9 +168,10 @@ export function getReports() {
 }
 
 // ─── ML Predictions API ───────────────────────────────────
-export async function getPrediction(sensorData) {
+export async function getPrediction(sensorData, { explain = false } = {}) {
   try {
-    const res = await apiClient.post(`/predictions/predict`, sensorData);
+    const params = explain ? { explain: true } : {};
+    const res = await apiClient.post(`/predictions/predict`, sensorData, { params });
     return res.data;
   } catch (error) {
     console.warn("Prediction API error", error?.message);

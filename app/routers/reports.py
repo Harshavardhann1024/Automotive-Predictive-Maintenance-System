@@ -13,7 +13,7 @@ router = APIRouter()
 
 @router.get("/generate")
 async def generate_report(
-    format: str = Query(..., regex="^(pdf|csv)$"),
+    format: str = Query(..., pattern="^(pdf|csv)$"),
     type: str = Query(..., description="Report type"),
     db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_active_user)

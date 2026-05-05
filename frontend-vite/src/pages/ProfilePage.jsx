@@ -12,7 +12,7 @@ const ProfilePage = () => {
       try {
         const res = await apiClient.get('/users/me');
         setProfile(res.data);
-      } catch (err) {
+      } catch {
         setError('Failed to load profile. Please make sure backend is running.');
       } finally {
         setLoading(false);

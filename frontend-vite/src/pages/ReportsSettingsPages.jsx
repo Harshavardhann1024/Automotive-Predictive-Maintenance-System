@@ -18,7 +18,7 @@ export const ReportsPage = () => {
           try {
             await exportDataZip();
             alert('Exported all data to ZIP archive successfully!');
-          } catch(e) { alert('Error exporting ZIP'); }
+          } catch { alert('Error exporting ZIP'); }
           setDownloading(null);
         }}>
           {downloading === 'zip' ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} 
@@ -63,7 +63,7 @@ export const ReportsPage = () => {
                 try {
                   await generateReport('pdf', report.title);
                   alert(`Generated PDF for ${report.title}`);
-                } catch(e) { alert('Error generating report'); }
+                } catch { alert('Error generating report'); }
                 setDownloading(null);
               }}>
                 {downloading === report.title + 'pdf' ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} PDF
@@ -73,7 +73,7 @@ export const ReportsPage = () => {
                 try {
                   await generateReport('csv', report.title);
                   alert(`Generated CSV for ${report.title}`);
-                } catch(e) { alert('Error generating report'); }
+                } catch { alert('Error generating report'); }
                 setDownloading(null);
               }}>
                 {downloading === report.title + 'csv' ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} CSV

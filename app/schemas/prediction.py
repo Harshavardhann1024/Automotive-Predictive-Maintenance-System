@@ -1,5 +1,6 @@
 """
 Prediction schemas — Pydantic models for request/response.
+Includes SHAP explainability response models.
 """
 
 from pydantic import BaseModel, Field
@@ -19,13 +20,53 @@ class PredictionRequest(BaseModel):
     vehicle_id: Optional[UUID] = Field(None, description="Optional vehicle ID to link prediction")
 
 
+# ─── SHAP Explanation Models ──────────────────────────────
+
+class FeatureExplanation(BaseModel):
+    """Single feature's SHAP contribution to the prediction."""
+    feature: str = Field(..., description="Feature name (e.g. engine_temp)")
+    impact: float = Field(..., description="SHAP value — positive increases failure risk, negative decreases it")
+    value: float = Field(..., description="Actual sensor value used for this feature")
+
+
+class SHAPExplanation(BaseModel):
+    """Complete SHAP explanation payload for a prediction."""
+    explanations: List[FeatureExplanation] = Field(
+        default_factory=list,
+        description="Feature contributions sorted by absolute impact (descending)",
+    )
+    natural_explanation: str = Field(
+        "",
+        description="Human-readable summary of why this prediction was made",
+    )
+    shap_base_value: Optional[float] = Field(
+        None,
+        description="SHAP expected value (baseline prediction before feature contributions)",
+    )
+    suppressed_by_rules: bool = Field(
+        False,
+        description="True if domain safety rules suppressed the ML prediction",
+    )
+    suppression_note: Optional[str] = Field(
+        None,
+        description="Explanation of why the prediction was suppressed",
+    )
+
+
 class PredictionResponse(BaseModel):
-    """ML prediction result."""
+    """ML prediction result — optionally includes SHAP explanation."""
     failure_probability: float
     prediction: int
     risk_level: str
     sensor_flags: List[str] = []
     threshold_used: float
+
+    # SHAP fields (populated only when ?explain=true)
+    explanations: Optional[List[FeatureExplanation]] = None
+    natural_explanation: Optional[str] = None
+    shap_base_value: Optional[float] = None
+    suppressed_by_rules: Optional[bool] = None
+    suppression_note: Optional[str] = None
 
     class Config:
         from_attributes = True

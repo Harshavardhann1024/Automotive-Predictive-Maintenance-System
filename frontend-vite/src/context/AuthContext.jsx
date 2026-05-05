@@ -1,23 +1,26 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { loginUser } from '../services/authApi';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
-  const [loading, setLoading] = useState(true);
-
-  // When app loads, try to decode token to get user info if needed
-  useEffect(() => {
-    if (token) {
-      // In a real app we might fetch user profile here. For now, decode simple details from token or use generic placeholder
+  const [user, setUser] = useState(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
       const savedRole = localStorage.getItem('role') || 'engineer';
-      setUser({ name: "User", role: savedRole });
-    } else {
+      return { name: "User", role: savedRole };
+    }
+    return null;
+  });
+  const loading = false;
+
+  useEffect(() => {
+    if (!token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUser(null);
     }
-    setLoading(false);
   }, [token]);
 
   const login = async (email, password) => {

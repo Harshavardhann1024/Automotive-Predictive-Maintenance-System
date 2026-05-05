@@ -5,6 +5,8 @@ POST /predictions/predict   → Real-time prediction from sensor data
 GET  /predictions/history   → Past prediction records
 GET  /predictions/stats     → Aggregated risk stats for dashboard
 GET  /predictions/model-info → Loaded model metadata
+
+Supports SHAP explainability via ?explain=true query parameter.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -31,6 +33,10 @@ router = APIRouter()
 @router.post("/predict", response_model=PredictionResponse)
 async def create_prediction(
     data: PredictionRequest,
+    explain: bool = Query(
+        False,
+        description="If true, include SHAP feature explanations in response",
+    ),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -39,6 +45,9 @@ async def create_prediction(
     Accepts sensor readings, runs through the XGBoost model with
     domain-rule FP filtering, persists the result, and returns
     the prediction with risk level.
+
+    Pass ?explain=true to include SHAP-based feature explanations
+    (adds ~5-20ms to response time on first call, <5ms thereafter).
     """
     try:
         features = {
@@ -50,9 +59,9 @@ async def create_prediction(
             "mileage": data.mileage,
         }
 
-        result = predict_failure(features)
+        result = predict_failure(features, explain=explain)
 
-        # Persist to database
+        # Persist to database (core fields only, SHAP is transient)
         db_prediction = Prediction(
             vehicle_id=data.vehicle_id,
             engine_temp=data.engine_temp,
