@@ -15,7 +15,7 @@ Business Rules:
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
 from uuid import UUID
 import random
@@ -64,7 +64,7 @@ async def check_duplicate_schedule(
     if vehicle_id is None:
         return False
 
-    cutoff = datetime.utcnow() - timedelta(hours=window_hours)
+    cutoff = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=window_hours)
 
     query = select(func.count(ServiceSchedule.id)).where(
         and_(
@@ -97,7 +97,7 @@ async def check_escalation(
     if vehicle_id is None:
         return False
 
-    cutoff = datetime.utcnow() - timedelta(hours=window_hours)
+    cutoff = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=window_hours)
 
     query = select(func.count(ServiceSchedule.id)).where(
         and_(
@@ -121,7 +121,7 @@ def compute_scheduled_date(risk_level: str) -> datetime:
     MEDIUM → within 3–5 days
     LOW    → no schedule (should not reach here)
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     risk_upper = risk_level.upper()
 
     if risk_upper == "HIGH":
@@ -273,7 +273,7 @@ async def check_and_notify_overdue_services(
     Finds overdue service schedules and triggers escalation emails.
     Returns the number of overdue schedules found.
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     
     # Find overdue schedules that are still pending/scheduled
     query = select(ServiceSchedule).where(

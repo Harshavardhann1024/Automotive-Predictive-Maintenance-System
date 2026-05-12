@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Any
-import datetime
+from datetime import datetime, timedelta, timezone
 
 from backend.core.database import get_db
 from backend.services.notification_service import NotificationService
@@ -77,7 +77,7 @@ async def handle_notification_response(
             service_type="inspection", # Default for user-initiated schedule
             priority="medium",
             status="pending",
-            scheduled_date=datetime.datetime.utcnow() + datetime.timedelta(days=3) # Default
+            scheduled_date=datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(days=3) # Default
         )
         db.add(db_schedule)
         await db.commit()

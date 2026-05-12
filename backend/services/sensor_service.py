@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_, desc
 from sqlalchemy.orm import selectinload
 from typing import List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 from backend.models.sensor import SensorData, SensorType
@@ -51,7 +51,7 @@ class SensorService:
             raise ValueError(f"Vehicle with ID {batch_data.vehicle_id} not found")
 
         # Generate batch ID if not provided
-        batch_id = f"batch_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{batch_data.vehicle_id}"
+        batch_id = f"batch_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{batch_data.vehicle_id}"
 
         sensor_readings = []
         for reading in batch_data.readings:
@@ -111,7 +111,7 @@ class SensorService:
         hours: int = 24
     ) -> List[SensorStats]:
         """Get sensor statistics for the specified time period."""
-        time_threshold = datetime.utcnow() - timedelta(hours=hours)
+        time_threshold = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=hours)
 
         # Build base query
         query = select(

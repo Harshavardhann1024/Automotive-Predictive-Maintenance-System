@@ -1,5 +1,5 @@
 import jwt
-import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Optional
 from backend.core.config import settings
 import os
@@ -19,7 +19,7 @@ class NotificationService:
         """
         Generate a secure JWT token for a specific action.
         """
-        expiration = datetime.datetime.utcnow() + datetime.timedelta(hours=expires_in_hours)
+        expiration = datetime.now(timezone.utc) + timedelta(hours=expires_in_hours)
         payload = {
             "prediction_id": str(prediction_id),
             "vehicle_id": str(vehicle_id),
@@ -153,4 +153,3 @@ class NotificationService:
         print(f"Subject: {subject}")
         print("--- END MOCK EMAIL ---")
         return True
-

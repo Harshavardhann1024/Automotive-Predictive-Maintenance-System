@@ -1,12 +1,12 @@
 import os
-import smtplib
+import aiosmtplib
 import logging
 from email.message import EmailMessage
 from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-def send_email(to_email: str, subject: str, message: str) -> bool:
+async def send_email(to_email: str, subject: str, message: str) -> bool:
     """
     Sends an email using SMTP (Gmail).
     Expects EMAIL_USER and EMAIL_PASS environment variables.
@@ -30,9 +30,14 @@ def send_email(to_email: str, subject: str, message: str) -> bool:
         # Use a background task / thread in production, or async SMTP library like aiosmtplib.
         # Since standard smtplib is synchronous, we run it directly here, but it's meant to be
         # called via FastAPI BackgroundTasks so it won't block the API response.
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-            smtp.login(email_user, email_pass)
-            smtp.send_message(msg)
+        await aiosmtplib.send(
+            msg,
+            hostname="smtp.gmail.com",
+            port=465,
+            username=email_user,
+            password=email_pass,
+            use_tls=True,
+        )
         logger.info(f"Email sent to {to_email} with subject: {subject}")
         return True
     except Exception as e:

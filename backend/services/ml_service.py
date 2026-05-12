@@ -9,6 +9,7 @@ Optionally computes SHAP explanations for interpretable predictions.
 import os
 import time
 import logging
+import random
 import numpy as np
 import joblib
 import shap
@@ -242,12 +243,16 @@ def _estimate_rul(failure_probability: float, features: Dict[str, float]) -> Opt
     Estimates Remaining Useful Life (RUL) in days based on failure probability and features.
     This is a placeholder for a more sophisticated RUL model or detailed heuristics.
     """
-    if failure_probability > 0.75:
-        return random.randint(1, 7) # 1-7 days for very high risk
+    mileage = features.get("mileage", 0)
+    
+    if failure_probability >= 0.9:
+        return max(1, 7 - int(mileage / 50000))
+    elif failure_probability > 0.75:
+        return max(2, 14 - int(mileage / 40000))
     elif failure_probability > 0.5:
-        return random.randint(7, 30) # 1-4 weeks for high risk
+        return max(7, 30 - int(mileage / 30000))
     elif failure_probability > 0.25:
-        return random.randint(30, 90) # 1-3 months for medium risk
+        return max(30, 90 - int(mileage / 20000))
     return None # No immediate RUL for low probability
 
 
