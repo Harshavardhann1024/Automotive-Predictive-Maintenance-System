@@ -237,6 +237,20 @@ def _generate_natural_explanation(
     return f"Failure risk is {risk_label} mainly due to {drivers}."
 
 
+def _estimate_rul(failure_probability: float, features: Dict[str, float]) -> Optional[int]:
+    """
+    Estimates Remaining Useful Life (RUL) in days based on failure probability and features.
+    This is a placeholder for a more sophisticated RUL model or detailed heuristics.
+    """
+    if failure_probability > 0.75:
+        return random.randint(1, 7) # 1-7 days for very high risk
+    elif failure_probability > 0.5:
+        return random.randint(7, 30) # 1-4 weeks for high risk
+    elif failure_probability > 0.25:
+        return random.randint(30, 90) # 1-3 months for medium risk
+    return None # No immediate RUL for low probability
+
+
 def predict_failure(
     features: Dict[str, float],
     explain: bool = False,
@@ -300,6 +314,10 @@ def predict_failure(
     # Risk classification uses raw probability regardless of domain filter
     risk_level = classify_risk(failure_probability)
 
+    # Estimate RUL
+    rul_estimate = _estimate_rul(failure_probability, features)
+
+
     result = {
         "failure_probability": failure_probability,
         "prediction": prediction,
@@ -307,6 +325,7 @@ def predict_failure(
         "sensor_flags": sensor_flags,
         "threshold_used": singleton.threshold,
     }
+    if rul_estimate is not None: result["remaining_useful_life_days"] = rul_estimate
 
     # ─── SHAP Explanation (only when requested) ───
     if explain:

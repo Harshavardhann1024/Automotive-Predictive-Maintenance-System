@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import BackgroundTasks
 
 from .decision_engine import DecisionEngine, ActionType
-from .scheduler import Scheduler
+from backend.services.service_scheduler import generate_service_schedule as core_generate_service_schedule
 from .notifier import Notifier
 
 logger = logging.getLogger("agents.action")
@@ -75,16 +75,18 @@ class ActionAgent:
         service_scheduled = False
 
         if decision["should_schedule"] and vehicle_id is not None:
+            # Delegate scheduling to the core service_scheduler
             try:
-                service_info = await Scheduler.schedule_service(
+                service_info = await core_generate_service_schedule(
                     db=db,
                     vehicle_id=vehicle_id,
+                    prediction_id=None, # ActionAgent doesn't directly have prediction_id, needs to be passed if available
                     risk_level=risk_level,
+                    background_tasks=background_tasks, # Pass background_tasks for notifications from scheduler
                 )
-                service_scheduled = True
                 logger.info(
                     f"⚡ ActionAgent: Service scheduled | "
-                    f"request_id={service_info['service_request_id']}"
+                    f"schedule_id={service_info['schedule_id']}"
                 )
             except Exception as e:
                 logger.error(f"⚡ ActionAgent: Scheduling failed | error={e}")
@@ -94,6 +96,7 @@ class ActionAgent:
             logger.warning(
                 "⚡ ActionAgent: Scheduling skipped — no vehicle_id provided"
             )
+        service_scheduled = service_info is not None # True if a schedule was successfully generated
 
         # ─── Step 3: Notify if required ───
         notification_result = {"notification_sent": False}
